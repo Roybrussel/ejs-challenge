@@ -35,7 +35,10 @@ app.get("/compose", function (req, res) {
 });
 
 app.post("/compose", function (req, res) {
-  console.log(req.body.blogpost);
+  const post = {
+    title: req.body.postTitle,
+    content: req.body.blogPost,
+  };
 });
 
 app.listen(3000, function () {
