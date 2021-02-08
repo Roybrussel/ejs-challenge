@@ -57,7 +57,12 @@ const blogPostModel = new Schema({
 const BlogPost = mongoose.model("Blogpost", blogPostModel);
 
 app.get("/", function (req, res) {
-  res.render("home", { startingContent: homeStartingContent, posts: posts });
+  BlogPost.find({}, function (err, foundBlogPosts) {
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: foundBlogPosts,
+    });
+  });
 });
 
 app.get("/about", function (req, res) {
