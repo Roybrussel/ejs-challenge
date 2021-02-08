@@ -21,6 +21,41 @@ app.use(express.static("public"));
 
 let posts = [];
 
+/// DATABASE CONNECTION ///
+
+const mongoose = require("mongoose");
+mongoose.connect(`${process.env.MONGO_DB}`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function () {
+  // we're connected!
+});
+
+/// BLOGPOST SCHEMA ///
+
+const Schema = mongoose.Schema;
+
+const blogPostModel = new Schema({
+  title: {
+    type: String,
+    required: true,
+    minlength: 1,
+    maxlength: 50,
+  },
+  content: {
+    type: String,
+    required: true,
+    minlength: 50,
+    maxlength: 500,
+  },
+});
+
+const BlogPost = mongoose.model("Blogpost", blogPostModel);
+
 app.get("/", function (req, res) {
   res.render("home", { startingContent: homeStartingContent, posts: posts });
 });
@@ -38,11 +73,16 @@ app.get("/compose", function (req, res) {
 });
 
 app.post("/compose", function (req, res) {
-  const post = {
-    title: req.body.postTitle,
-    content: req.body.blogPost,
-  };
-  posts.push(post);
+  const title = req.body.postTitle;
+  const content = req.body.blogPost;
+
+  const blogPost = new BlogPost({
+    title: title,
+    content: content,
+  });
+
+  blogPost.save();
+
   res.redirect("/");
 });
 
