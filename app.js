@@ -19,8 +19,6 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-let posts = [];
-
 /// DATABASE CONNECTION ///
 
 const mongoose = require("mongoose");
@@ -86,21 +84,24 @@ app.post("/compose", function (req, res) {
     content: content,
   });
 
-  blogPost.save();
+  blogPost.save(function (err) {
+    if (!err) {
+      res.redirect("/");
+    }
+  });
 
   res.redirect("/");
 });
 
-app.get("/posts/:postTitle", function (req, res) {
-  const requestedPost = _.lowerCase(req.params.postTitle);
+app.get("/posts/:postId", function (req, res) {
+  const requestedPostId = req.params.postId;
 
-  posts.forEach(function (post) {
-    const storedTitle = _.lowerCase(post.title);
-    if (storedTitle === requestedPost) {
-      res.render("post", { post: post });
-    } else {
-      res.render("not-found");
-    }
+  BlogPost.findOne({ _id: requestedPostId }, function (err, post) {
+    res.render("post", {
+      title: post.title,
+
+      content: post.content,
+    });
   });
 });
 
